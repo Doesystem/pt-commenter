@@ -1,0 +1,25 @@
+{
+    "name": "pt-commenter",
+    "version": "0.0.1",
+    "description": "A PT commenter agent built with @lifetimesoft/agent-sdk",
+    "runtime": "node20",
+    "main": "dist/index.js",
+    "public": true,
+    "version_public": true,
+    "pull_public": true,
+    "config": {
+        "memory_limit": "512mb",
+        "timeout": 3600
+    },
+    "input": {
+        "type": "none"
+    },
+    "output": {
+        "type": "none"
+    },
+    "keywords": [
+        "pt",
+        "commenter",
+        "agent"
+    ]
+}
