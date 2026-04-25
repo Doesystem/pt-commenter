@@ -7,7 +7,11 @@
         "build": "tsc",
         "dev": "tsc --watch",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "start": "node dist/index.js",
+        "clean": "rm -rf dist data",
+        "clean:data": "rm -rf data",
+        "lint": "tsc --noEmit"
     },
     "repository": {
         "type": "git",
@@ -25,10 +29,13 @@
     },
     "homepage": "https://github.com/Doesystem/pt-commenter#readme",
     "dependencies": {
-        "@lifetimesoft/agent-sdk": "0.0.8"
+        "@lifetimesoft/agent-sdk": "0.0.9",
+        "playwright": "^1.58.2",
+        "rss-parser": "^3.13.0"
     },
     "devDependencies": {
         "typescript": "5.9.3",
-        "vitest": "3.2.4"
+        "vitest": "3.2.4",
+        "@types/node": "^22.0.0"
     }
 }
