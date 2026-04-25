@@ -67,7 +67,7 @@ rm -rf data/
 import * as fileStorage from './dist/services/fileStorage.js';
 
 // ลบ queue เฉพาะ
-fileStorage.clearQueue('pantipAgent:tasks');
+fileStorage.clearQueue('ptAgent:tasks');
 ```
 
 ---
@@ -79,7 +79,7 @@ fileStorage.clearQueue('pantipAgent:tasks');
 ```javascript
 import * as fileStorage from './dist/services/fileStorage.js';
 
-const length = fileStorage.getQueueLength('pantipAgent:tasks');
+const length = fileStorage.getQueueLength('ptAgent:tasks');
 console.log(`Queue length: ${length}`);
 ```
 
@@ -133,7 +133,7 @@ console.log('Queues:', queues);
 ### Problem: Too Many Seen Records
 
 **Symptoms:**
-- `pantip-topic.json` file is very large
+- `pt-topic.json` file is very large
 - Slow performance
 
 **Solutions:**
@@ -149,7 +149,7 @@ console.log('Queues:', queues);
 
 3. **Manual cleanup:**
    ```bash
-   rm data/seen/pantip-topic.json
+   rm data/seen/pt-topic.json
    ```
 
 ### Problem: File Corruption
@@ -163,22 +163,22 @@ console.log('Queues:', queues);
 1. **Check file integrity:**
    ```bash
    # ตรวจสอบ JSON files
-   cat data/queue/pantipAgent-tasks.json | jq .
-   cat data/seen/pantip-topic.json | jq .
+   cat data/queue/ptAgent-tasks.json | jq .
+   cat data/seen/pt-topic.json | jq .
    ```
 
 2. **Fix corrupted files:**
    ```bash
    # Backup first
-   cp data/queue/pantipAgent-tasks.json data/queue/pantipAgent-tasks.json.bak
+   cp data/queue/ptAgent-tasks.json data/queue/ptAgent-tasks.json.bak
    
    # Reset to empty
-   echo '{"tasks":[]}' > data/queue/pantipAgent-tasks.json
+   echo '{"tasks":[]}' > data/queue/ptAgent-tasks.json
    ```
 
 3. **Restore from backup:**
    ```bash
-   cp data/queue/pantipAgent-tasks.json.bak data/queue/pantipAgent-tasks.json
+   cp data/queue/ptAgent-tasks.json.bak data/queue/ptAgent-tasks.json
    ```
 
 ### Problem: Permission Errors
@@ -234,15 +234,15 @@ console.log('Queues:', queues);
 ```
 data/
 ├── seen/
-│   └── pantip-topic.json      # Seen topics (auto-cleanup after 7 days)
+│   └── pt-topic.json           # Seen topics (auto-cleanup after 7 days)
 ├── queue/
-│   └── pantipAgent-tasks.json # Pending tasks (FIFO)
+│   └── ptAgent-tasks.json      # Pending tasks (FIFO)
 └── toggle.json                 # Worker states
 ```
 
 ### File Formats
 
-#### seen/pantip-topic.json
+#### seen/pt-topic.json
 ```json
 {
   "records": [
@@ -255,12 +255,12 @@ data/
 }
 ```
 
-#### queue/pantipAgent-tasks.json
+#### queue/ptAgent-tasks.json
 ```json
 {
   "tasks": [
     {
-      "type": "pantip-topic",
+      "type": "pt-topic",
       "url": "https://pantip.com/topic/12345678"
     }
   ]
@@ -270,7 +270,7 @@ data/
 #### toggle.json
 ```json
 {
-  "worker:pantipCommentWorker": true
+  "worker:ptCommentWorker": true
 }
 ```
 

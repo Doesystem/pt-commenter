@@ -35,7 +35,7 @@
             "name": "feed_job_enable",
             "type": "boolean",
             "label": "Enable Feed Job",
-            "description": "Enable or disable fetching new Pantip posts",
+            "description": "Enable or disable fetching new PT posts",
             "default": true,
             "required": false
         },
@@ -50,15 +50,15 @@
         {
             "name": "pantip_username",
             "type": "string",
-            "label": "Pantip Username",
-            "description": "Pantip account username for authentication",
+            "label": "PT Username",
+            "description": "PT account username for authentication",
             "required": false
         },
         {
             "name": "pantip_password",
             "type": "password",
-            "label": "Pantip Password",
-            "description": "Pantip account password for authentication",
+            "label": "PT Password",
+            "description": "PT account password for authentication",
             "required": false
         },
         {

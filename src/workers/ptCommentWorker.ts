@@ -8,7 +8,7 @@ interface Task {
 
 async function processTask(task: Task, ctx: Context): Promise<void> {
     // TODO: Implement task processing logic
-    // This would typically call the pantip crew or similar processing
+    // This would typically call the PT crew or similar processing
     ctx.log.info(`Processing task: ${task.type}`);
     
     // Simulate processing time
@@ -26,14 +26,14 @@ export async function startWorker(ctx: Context): Promise<void> {
 }
 
 export async function runWorker(ctx: Context): Promise<void> {
-    ctx.log.info("pantipCommentWorker running once");
+    ctx.log.info("ptCommentWorker running once");
 
     try {
         // Process all available tasks in the queue
         let processedCount = 0;
         
         while (true) {
-            const task = fileStorage.popTask("pantipAgent:tasks");
+            const task = fileStorage.popTask("ptAgent:tasks");
             if (!task) {
                 ctx.log.info(`No more tasks in queue. Processed ${processedCount} tasks.`);
                 break;
