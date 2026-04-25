@@ -1,12 +1,12 @@
 # pt-commenter
 
-A PT commenter agent built with [`@lifetimesoft/agent-sdk`](https://www.npmjs.com/package/@lifetimesoft/agent-sdk) that automatically monitors Pantip forums and posts intelligent comments.
+A PT commenter agent built with [`@lifetimesoft/agent-sdk`](https://www.npmjs.com/package/@lifetimesoft/agent-sdk) that automatically monitors PT forums and posts intelligent comments.
 
 ---
 
 ## 📦 Features
 
-* **RSS Feed Monitoring**: Automatically crawls Pantip forum RSS feeds for new topics
+* **RSS Feed Monitoring**: Automatically crawls PT forum RSS feeds for new topics
 * **Intelligent Commenting**: Processes topics and generates contextual comments
 * **File-based Storage**: Uses JSON files for task queuing and deduplication (no external dependencies)
 * **Configurable Scheduling**: Supports cron-based scheduling via platform dashboard
@@ -19,7 +19,7 @@ A PT commenter agent built with [`@lifetimesoft/agent-sdk`](https://www.npmjs.co
 
 ### Prerequisites
 - Node.js 20+
-- Pantip account credentials
+- PT account credentials
 
 ### Installation
 
@@ -48,9 +48,9 @@ Environment variables are configured via `ctx.env` through the platform dashboar
 - `feed_job_enable` - Enable/disable RSS feed crawler (default: true)
 - `comment_enable` - Enable/disable comment worker (default: true)
 
-**Pantip Configuration:**
-- `pantip_username` - Pantip account username (optional)
-- `pantip_password` - Pantip account password (optional)
+**PT Configuration:**
+- `pantip_username` - PT account username (optional)
+- `pantip_password` - PT account password (optional)
 
 **Timing Configuration:**
 - `min_wait_minutes` - Minimum wait time between operations (default: 2)
@@ -67,7 +67,7 @@ The agent consists of two main components:
 ### 1. Feed Job (RSS Crawler)
 ```ts
 // Runs every hour via cron
-startCronJob() // Crawls RSS feeds from multiple Pantip rooms
+startCronJob() // Crawls RSS feeds from multiple PT rooms
 ```
 
 ### 2. Comment Worker  
@@ -77,7 +77,7 @@ startWorker() // Generates and posts comments
 ```
 
 ### Architecture Flow:
-1. **Feed Job** crawls Pantip RSS feeds hourly
+1. **Feed Job** crawls PT RSS feeds hourly
 2. New topics are added to file-based task queue
 3. **Comment Worker** processes tasks from queue
 4. Worker generates intelligent comments and posts them
@@ -103,14 +103,14 @@ Scheduler config is set from the platform dashboard:
 src/
   index.ts              ← main agent entry point
   jobs/
-    pantipFeedJob.ts    ← RSS feed crawler (cron job)
+    ptFeedJob.ts        ← RSS feed crawler (cron job)
   workers/
-    pantipCommentWorker.ts ← task processor (queue worker)
+    ptCommentWorker.ts  ← task processor (queue worker)
   services/
     fileStorage.ts      ← file-based storage (queue & deduplication)
     taskService.ts      ← task queue management
   tools/
-    pantipRssTool.ts    ← RSS parsing utilities
+    ptRssTool.ts        ← RSS parsing utilities
     maintenance.ts      ← maintenance tools
 dist/                   ← compiled output
 logs/                   ← application logs
@@ -123,7 +123,7 @@ See [DATA_STRUCTURE.md](./DATA_STRUCTURE.md) for detailed information about data
 
 ---
 
-## 🎯 Monitored Pantip Rooms
+## 🎯 Monitored PT Rooms
 
 - tech, sinthorn, wahkor, siam, blueplanet
 - siliconvalley, supachalasai, bangrak, library  

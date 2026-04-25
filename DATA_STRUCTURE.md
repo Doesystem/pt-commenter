@@ -7,14 +7,14 @@
 ```
 data/
 ├── seen/                      # เก็บ topic ที่เคยเห็นแล้ว (deduplication)
-│   └── pantip-topic.json     # รายการ topic ที่เคย crawl แล้ว
+│   └── pt-topic.json         # รายการ topic ที่เคย crawl แล้ว
 └── queue/                     # เก็บ task queue
-    └── pantipAgent-tasks.json # tasks ที่รอประมวลผล
+    └── ptAgent-tasks.json    # tasks ที่รอประมวลผล
 ```
 
 ## 📄 รูปแบบข้อมูล
 
-### 1. Seen Topics (`data/seen/pantip-topic.json`)
+### 1. Seen Topics (`data/seen/pt-topic.json`)
 
 เก็บรายการ topic ที่เคยเห็นแล้ว พร้อม TTL 7 วัน
 
@@ -31,12 +31,12 @@ data/
 ```
 
 **คุณสมบัติ:**
-- `id`: Topic ID จาก Pantip
+- `id`: Topic ID จาก PT
 - `seenAt`: เวลาที่เห็น topic (timestamp)
 - `expiresAt`: เวลาที่จะหมดอายุ (timestamp)
 - ระบบจะลบ records ที่หมดอายุอัตโนมัติเมื่ออ่านไฟล์
 
-### 2. Task Queue (`data/queue/pantipAgent-tasks.json`)
+### 2. Task Queue (`data/queue/ptAgent-tasks.json`)
 
 เก็บ tasks ที่รอประมวลผลแบบ FIFO (First In First Out)
 
@@ -44,7 +44,7 @@ data/
 {
   "tasks": [
     {
-      "type": "pantip-topic",
+      "type": "pt-topic",
       "url": "https://pantip.com/topic/12345678"
     },
     {
@@ -68,10 +68,10 @@ data/
 import * as fileStorage from "./services/fileStorage.js";
 
 // ตรวจสอบว่าเคยเห็น topic นี้แล้วหรือไม่
-const isDupe = fileStorage.isDuplicate("pantip-topic", "12345678");
+const isDupe = fileStorage.isDuplicate("pt-topic", "12345678");
 
 // บันทึกว่าเห็น topic นี้แล้ว
-fileStorage.markAsSeen("pantip-topic", "12345678");
+fileStorage.markAsSeen("pt-topic", "12345678");
 ```
 
 ### Task Queue
@@ -80,16 +80,16 @@ fileStorage.markAsSeen("pantip-topic", "12345678");
 import * as fileStorage from "./services/fileStorage.js";
 
 // เพิ่ม task เข้า queue
-fileStorage.pushTask("pantipAgent:tasks", {
-  type: "pantip-topic",
+fileStorage.pushTask("ptAgent:tasks", {
+  type: "pt-topic",
   url: "https://pantip.com/topic/12345678"
 });
 
 // ดึง task ออกจาก queue (FIFO)
-const task = fileStorage.popTask("pantipAgent:tasks");
+const task = fileStorage.popTask("ptAgent:tasks");
 
 // ดูจำนวน tasks ใน queue
-const length = fileStorage.getQueueLength("pantipAgent:tasks");
+const length = fileStorage.getQueueLength("ptAgent:tasks");
 
 // ดู task แรกโดยไม่ลบออก
 const firstTask = fileStorage.peekTask("pantipAgent:tasks");
