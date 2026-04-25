@@ -1,6 +1,6 @@
 # Data Storage Structure
 
-โปรเจค pt-commenter ใช้ระบบเก็บข้อมูลแบบไฟล์ JSON แทน Redis เพื่อความง่ายในการ deploy และไม่ต้องพึ่งพา external service
+โปรเจค pt-commenter ใช้ระบบเก็บข้อมูลแบบไฟล์ JSON สำหรับความง่ายในการ deploy และไม่ต้องพึ่งพา external services
 
 ## 📁 โครงสร้างไฟล์
 
@@ -15,24 +15,6 @@ data/
 ## 📄 รูปแบบข้อมูล
 
 ### 1. Seen Topics (`data/seen/pantip-topic.json`)
-
-```json
-{
-  "records": [
-    {
-      "id": "12345678",
-      "seenAt": 1735123456789,
-      "expiresAt": 1735728256789
-    }
-  ]
-}
-```
-
-**คุณสมบัติ:**
-- `id`: Topic ID จาก Pantip
-- `seenAt`: เวลาที่เห็น topic (timestamp)
-- `expiresAt`: เวลาที่จะหมดอายุ (timestamp)
-- ระบบจะลบ records ที่หมดอายุอัตโนมัติเมื่ออ่านไฟล์
 
 เก็บรายการ topic ที่เคยเห็นแล้ว พร้อม TTL 7 วัน
 
@@ -120,29 +102,25 @@ fileStorage.clearQueue("pantipAgent:tasks");
 
 Worker enable/disable ถูกควบคุมผ่าน environment variables:
 
-```env
-# Enable/disable feed job (RSS crawler)
-feed_job_enable=true
-
-# Enable/disable comment worker
-comment_enable=true
+```typescript
+// ตั้งค่าผ่าน agent.json หรือ platform dashboard
+feed_job_enable: true   // Enable/disable feed job (RSS crawler)
+comment_enable: true    // Enable/disable comment worker
 ```
-
-ตั้งค่าผ่าน agent.json หรือ platform dashboard
 
 ## 🚀 ข้อดีของระบบไฟล์
 
-1. **ไม่ต้องพึ่งพา Redis** - ลด complexity ในการ deploy
+1. **ไม่ต้องพึ่งพา external services** - ลด complexity ในการ deploy
 2. **ง่ายต่อการ debug** - สามารถเปิดดูไฟล์ได้โดยตรง
 3. **Portable** - ย้ายไปไหนก็ได้ แค่คัดลอก data folder
 4. **Version control friendly** - สามารถ backup ด้วย git (ถ้าต้องการ)
-5. **No external dependencies** - ไม่ต้องติดตั้ง Redis server
+5. **Simple deployment** - ไม่ต้องติดตั้ง external services
 
 ## ⚠️ ข้อจำกัด
 
 1. **ไม่เหมาะกับ high concurrency** - ถ้ามีหลาย process เขียนไฟล์พร้อมกันอาจเกิด race condition
 2. **Performance** - อ่าน/เขียนไฟล์ช้ากว่า in-memory database
-3. **ไม่มี atomic operations** - ไม่รับประกัน atomicity เหมือน Redis
+3. **File I/O overhead** - มี overhead ในการอ่าน/เขียนไฟล์
 
 ## 💡 Use Cases ที่เหมาะสม
 
