@@ -1,20 +1,36 @@
 # pt-commenter
 
-A PT commenter agent built with [`@lifetimesoft/agent-sdk`](https://www.npmjs.com/package/@lifetimesoft/agent-sdk).
+A PT commenter agent built with [`@lifetimesoft/agent-sdk`](https://www.npmjs.com/package/@lifetimesoft/agent-sdk) that automatically monitors Pantip forums and posts intelligent comments.
 
 ---
 
 ## 📦 Features
 
-* PT commenting agent using `defineAgent()` from `@lifetimesoft/agent-sdk`
-* TypeScript with strict mode
-* Scheduler support — configure via platform dashboard (none / interval / cron)
+* **RSS Feed Monitoring**: Automatically crawls Pantip forum RSS feeds for new topics
+* **Intelligent Commenting**: Processes topics and generates contextual comments
+* **File-based Storage**: Uses JSON files for task queuing and deduplication (no external dependencies)
+* **Configurable Scheduling**: Supports cron-based scheduling via platform dashboard
+* **TypeScript**: Full TypeScript support with strict mode
+* **Robust Error Handling**: Comprehensive logging and error recovery
 
 ---
 
 ## 🚀 Getting Started
 
+### Prerequisites
+- Node.js 20+
+- Pantip account credentials
+
+### Installation
+
 ```bash
+# Clone and install dependencies
+npm install
+
+# Build the project
+npm run build
+
+# Run via lifectl (environment variables configured via platform)
 lifectl ai agent pull pt-commenter
 lifectl ai agent run pt-commenter
 lifectl ai agent logs pt-commenter
@@ -23,38 +39,61 @@ lifectl ai agent stop pt-commenter
 
 ---
 
+## ⚙️ Configuration
+
+Environment variables are configured via `ctx.env` through the platform dashboard or `agent.json`:
+
+**Agent Configuration:**
+- `mode` - Operation mode: normal, maintenance, or stats (default: normal)
+- `feed_job_enable` - Enable/disable RSS feed crawler (default: true)
+- `comment_enable` - Enable/disable comment worker (default: true)
+
+**Pantip Configuration:**
+- `pantip_username` - Pantip account username (optional)
+- `pantip_password` - Pantip account password (optional)
+
+**Timing Configuration:**
+- `min_wait_minutes` - Minimum wait time between operations (default: 2)
+- `max_wait_minutes` - Maximum wait time between operations (default: 6)
+
+All configuration is managed through the platform dashboard or `agent.json`.
+
+---
+
 ## 🧠 How It Works
 
-```ts
-import { defineAgent } from "@lifetimesoft/agent-sdk"
+The agent consists of two main components:
 
-export default defineAgent({
-  async run(ctx) {
-    ctx.log.info("PT commenter agent is running")
-    // TODO: Implement PT commenting logic here
-  },
-})
+### 1. Feed Job (RSS Crawler)
+```ts
+// Runs every hour via cron
+startCronJob() // Crawls RSS feeds from multiple Pantip rooms
 ```
 
-The `lifectl` runtime handles everything automatically:
-- Detects your package manager and runs `install`
-- Starts the agent via `agent-runtime` (from `@lifetimesoft/agent-sdk`)
-- Maintains a **WebSocket connection** to SaaS for heartbeat (hibernates between messages — near-zero cost)
-- Detects offline immediately when connection drops
-- Manages lifecycle and graceful shutdown — agent code never needs to know
-- Runs `run()` on schedule or on manual trigger — based on scheduler config from the platform
+### 2. Comment Worker  
+```ts
+// Processes tasks from Redis queue
+startWorker() // Generates and posts comments
+```
+
+### Architecture Flow:
+1. **Feed Job** crawls Pantip RSS feeds hourly
+2. New topics are added to file-based task queue
+3. **Comment Worker** processes tasks from queue
+4. Worker generates intelligent comments and posts them
+5. Deduplication prevents processing same topics twice (7-day TTL)
 
 ---
 
 ## 🕐 Scheduler
 
-Scheduler config is set from the platform dashboard — no code changes needed.
+Scheduler config is set from the platform dashboard:
 
 | type | behavior |
 |---|---|
-| `none` | manual trigger only — click Trigger in the dashboard |
+| `none` | manual trigger only |
 | `interval` | runs every N milliseconds |
-| `cron` | runs on a cron schedule (e.g. `0 9 * * 1-5`) |
+| `cron` | runs on cron schedule (e.g. `0 9 * * 1-5`) |
 
 ---
 
@@ -62,28 +101,33 @@ Scheduler config is set from the platform dashboard — no code changes needed.
 
 ```
 src/
-  index.ts        ← agent logic (main implementation)
-  index.test.ts   ← unit tests
-dist/
-  index.js        ← compiled output (built by tsc)
-package.json      ← dependencies including @lifetimesoft/agent-sdk
-agent.json        ← agent metadata
+  index.ts              ← main agent entry point
+  jobs/
+    pantipFeedJob.ts    ← RSS feed crawler (cron job)
+  workers/
+    pantipCommentWorker.ts ← task processor (queue worker)
+  services/
+    fileStorage.ts      ← file-based storage (queue & deduplication)
+    taskService.ts      ← task queue management
+  tools/
+    pantipRssTool.ts    ← RSS parsing utilities
+    maintenance.ts      ← maintenance tools
+dist/                   ← compiled output
+logs/                   ← application logs
+data/                   ← JSON data files (queue, seen topics)
+  seen/                 ← deduplication records
+  queue/                ← task queues
 ```
+
+See [DATA_STRUCTURE.md](./DATA_STRUCTURE.md) for detailed information about data storage.
 
 ---
 
-## 📋 agent.json
+## 🎯 Monitored Pantip Rooms
 
-```json
-{
-  "name": "pt-commenter",
-  "version": "0.0.1",
-  "runtime": "node20",
-  "main": "dist/index.js",
-  "public": true,
-  "keywords": ["pt", "commenter", "agent"]
-}
-```
+- tech, sinthorn, wahkor, siam, blueplanet
+- siliconvalley, supachalasai, bangrak, library  
+- food, home, ratchada, mbk
 
 ---
 
@@ -91,6 +135,28 @@ agent.json        ← agent metadata
 
 * [`lifectl`](https://www.npmjs.com/package/@lifetimesoft/lifectl) – CLI for running and managing agents
 * [`@lifetimesoft/agent-sdk`](https://www.npmjs.com/package/@lifetimesoft/agent-sdk) – SDK for building portable AI agents
+
+---
+
+## 🔧 Maintenance
+
+The agent includes built-in maintenance tools:
+
+### Operation Modes
+
+1. **Normal Mode** (default) - Run feed job and comment worker
+2. **Maintenance Mode** - Clean up expired records and show stats
+3. **Stats Mode** - Display storage statistics only
+
+```bash
+# Run maintenance
+lifectl ai agent run pt-commenter --env mode=maintenance
+
+# View statistics
+lifectl ai agent run pt-commenter --env mode=stats
+```
+
+See [MAINTENANCE.md](./MAINTENANCE.md) for detailed maintenance guide.
 
 ---
 

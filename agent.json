@@ -7,19 +7,72 @@
     "public": true,
     "version_public": true,
     "pull_public": true,
-    "config": {
-        "memory_limit": "512mb",
-        "timeout": 3600
-    },
     "input": {
         "type": "none"
     },
     "output": {
         "type": "none"
     },
+    "env": [
+        {
+            "name": "mode",
+            "type": "string",
+            "label": "Operation Mode",
+            "description": "Agent operation mode: normal, maintenance, or stats",
+            "default": "normal",
+            "required": false
+        },
+        {
+            "name": "feed_job_enable",
+            "type": "boolean",
+            "label": "Enable Feed Job",
+            "description": "Enable or disable fetching new Pantip posts",
+            "default": true,
+            "required": false
+        },
+        {
+            "name": "comment_enable",
+            "type": "boolean",
+            "label": "Enable Comment Job",
+            "description": "Enable or disable commenting on posts",
+            "default": true,
+            "required": false
+        },
+        {
+            "name": "pantip_username",
+            "type": "string",
+            "label": "Pantip Username",
+            "description": "Pantip account username for authentication",
+            "required": false
+        },
+        {
+            "name": "pantip_password",
+            "type": "string",
+            "label": "Pantip Password",
+            "description": "Pantip account password for authentication",
+            "required": false
+        },
+        {
+            "name": "min_wait_minutes",
+            "type": "number",
+            "label": "Minimum Wait Time (minutes)",
+            "description": "Minimum wait time between operations in minutes",
+            "default": 2,
+            "required": false
+        },
+        {
+            "name": "max_wait_minutes",
+            "type": "number",
+            "label": "Maximum Wait Time (minutes)",
+            "description": "Maximum wait time between operations in minutes",
+            "default": 6,
+            "required": false
+        }
+    ],
     "keywords": [
-        "pt",
+        "web-board",
         "commenter",
-        "agent"
+        "playwright",
+        "rss"
     ]
 }

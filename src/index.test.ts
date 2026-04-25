@@ -9,14 +9,16 @@ describe("pt-commenter", () => {
 
   it("calls ctx.log.info with PT commenter message", async () => {
     const mockInfo = vi.fn()
+    const mockError = vi.fn()
 
     const ctx = createMockContext({
-      log: { info: mockInfo },
+      log: { info: mockInfo, error: mockError },
     })
 
     await agent.run(ctx)
 
-    expect(mockInfo).toHaveBeenCalledWith("PT commenter agent is running")
+    expect(mockInfo).toHaveBeenCalledWith("PT Commenter Agent starting...")
+    expect(mockInfo).toHaveBeenCalledWith("PT Commenter Agent run successfully")
   })
 
   it("returns undefined (no output)", async () => {
