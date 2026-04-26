@@ -47,17 +47,25 @@
             "required": false
         },
         {
-            "name": "pantip_username",
+            "name": "pt_username",
             "type": "string",
             "label": "PT Username",
             "description": "PT account username for authentication",
             "required": false
         },
         {
-            "name": "pantip_password",
+            "name": "pt_password",
             "type": "password",
             "label": "PT Password",
             "description": "PT account password for authentication",
+            "required": false
+        },
+        {
+            "name": "max_tasks_per_run",
+            "type": "number",
+            "label": "Max Tasks Per Run",
+            "description": "Maximum number of tasks to process per scheduler run. Remaining tasks are picked up on the next run.",
+            "default": 1,
             "required": false
         },
         {

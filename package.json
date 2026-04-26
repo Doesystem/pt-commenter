@@ -1,6 +1,7 @@
 {
     "name": "pt-commenter",
     "version": "0.0.1",
+    "type": "module",
     "description": "A PT commenter agent built with @lifetimesoft/agent-sdk",
     "main": "dist/index.js",
     "scripts": {
