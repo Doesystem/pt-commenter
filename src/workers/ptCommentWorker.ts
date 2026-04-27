@@ -116,7 +116,7 @@ export async function runWorker(ctx: Context): Promise<void> {
     // Remaining tasks will be picked up on the next scheduler trigger.
     const maxTasksPerRun = getEnvNumber(ctx.env, 'max_tasks_per_run', 1) ?? 1;
 
-    const totalInQueue = fileStorage.getQueueLength("ptAgent:tasks");
+    const totalInQueue = fileStorage.getQueueLength("ptAgent-tasks");
     if (totalInQueue === 0) {
         ctx.log.info("No tasks in queue. Skipping.");
         return;
@@ -127,7 +127,7 @@ export async function runWorker(ctx: Context): Promise<void> {
     let processedCount = 0;
 
     while (processedCount < maxTasksPerRun) {
-        const task = fileStorage.popTask("ptAgent:tasks");
+        const task = fileStorage.popTask("ptAgent-tasks");
         if (!task) {
             ctx.log.info(`No more tasks in queue. Processed ${processedCount} tasks.`);
             break;
@@ -153,14 +153,14 @@ export async function runWorker(ctx: Context): Promise<void> {
         }
 
         // wait between tasks only if there are more to process this run
-        if (processedCount < maxTasksPerRun && fileStorage.getQueueLength("ptAgent:tasks") > 0) {
+        if (processedCount < maxTasksPerRun && fileStorage.getQueueLength("ptAgent-tasks") > 0) {
             const waitTime = Math.floor(Math.random() * (maxWaitMs - minWaitMs + 1)) + minWaitMs;
             ctx.log.info(`Waiting ${Math.round(waitTime / 60000)} min before next task...`);
             await new Promise(resolve => setTimeout(resolve, waitTime));
         }
     }
 
-    const remaining = fileStorage.getQueueLength("ptAgent:tasks");
+    const remaining = fileStorage.getQueueLength("ptAgent-tasks");
     ctx.log.info(`Worker completed. Processed: ${processedCount}, Remaining in queue: ${remaining}`);
     if (remaining > 0) {
         ctx.log.info(`${remaining} task(s) left — will be processed on next scheduler run.`);
