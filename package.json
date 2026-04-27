@@ -30,7 +30,7 @@
     },
     "homepage": "https://github.com/Doesystem/pt-commenter#readme",
     "dependencies": {
-        "@lifetimesoft/agent-sdk": "0.0.11",
+        "@lifetimesoft/agent-sdk": "0.0.13",
         "playwright": "^1.58.2",
         "rss-parser": "^3.13.0"
     },
