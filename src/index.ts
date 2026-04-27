@@ -39,7 +39,6 @@ function validateEnv(ctx: Context): void {
 export default defineAgent({
     async run(ctx) {
         ctx.log.info('PT Commenter Agent starting...')
-        ctx.log.info('Environment variables:', JSON.stringify(ctx.env, null, 2))
 
         try {
             const mode = getEnvString(ctx.env, 'mode', 'normal')

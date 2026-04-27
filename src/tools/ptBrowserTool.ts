@@ -58,24 +58,23 @@ export async function loginPt(
 ): Promise<void> {
     ctx.log.info('Logging in to PT...');
 
-    await page.goto('https://pantip.com', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.goto('https://pantip.com/login', { waitUntil: 'domcontentloaded', timeout: 60000 });
     await page.waitForTimeout(2000 + Math.random() * 1000);
 
     // click login link
-    await page.click('a[href^="https://pantip.com/login"]');
     await page.waitForSelector('#member_email', { timeout: 15000 });
 
-    // type email
+    ctx.log.info('type email');
     await page.locator('#member_email').click();
     await page.keyboard.type(username, { delay: 50 + Math.random() * 50 });
 
-    // type password
+    ctx.log.info('type password');
     await page.locator('#member_password').click();
     await page.keyboard.type(password, { delay: 50 + Math.random() * 50 });
 
     await page.waitForTimeout(10000); // wait like a human
 
-    // submit
+    ctx.log.info('submit login');
     await page.click('button[type="submit"]');
     await page.waitForURL('https://pantip.com/**', { timeout: 30000 });
     await page.waitForTimeout(3000);
