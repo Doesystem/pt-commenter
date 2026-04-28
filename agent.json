@@ -1,6 +1,6 @@
 {
     "name": "pt-commenter",
-    "version": "0.0.1",
+    "version": "0.0.7",
     "description": "A PT commenter agent built with @lifetimesoft/agent-sdk",
     "runtime": "node20",
     "main": "dist/index.js",
@@ -17,8 +17,7 @@
         "ai": {
             "required": true,
             "features": [
-                "chat",
-                "image"
+                "chat"
             ]
         }
     },
@@ -48,17 +47,25 @@
             "required": false
         },
         {
-            "name": "pantip_username",
+            "name": "pt_username",
             "type": "string",
             "label": "PT Username",
             "description": "PT account username for authentication",
             "required": false
         },
         {
-            "name": "pantip_password",
+            "name": "pt_password",
             "type": "password",
             "label": "PT Password",
             "description": "PT account password for authentication",
+            "required": false
+        },
+        {
+            "name": "max_tasks_per_run",
+            "type": "number",
+            "label": "Max Tasks Per Run",
+            "description": "Maximum number of tasks to process per scheduler run. Remaining tasks are picked up on the next run.",
+            "default": 1,
             "required": false
         },
         {
@@ -75,6 +82,14 @@
             "label": "Maximum Wait Time (minutes)",
             "description": "Maximum wait time between operations in minutes",
             "default": 6,
+            "required": false
+        },
+        {
+            "name": "headless",
+            "type": "boolean",
+            "label": "Headless Browser",
+            "description": "Run browser in headless mode (no visible window). Set to false for debugging.",
+            "default": true,
             "required": false
         }
     ],

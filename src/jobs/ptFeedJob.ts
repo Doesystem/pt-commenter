@@ -15,9 +15,9 @@ async function processRoom(room: string, browser: Browser, ctx: Context): Promis
         let created = 0;
 
         for (const { topicId, url } of topics) {
-            if (await isDuplicate("pt:topic", topicId)) continue;
-            await markAsSeen("pt:topic", topicId);
-            await createTask("pt-topic", { url }, "ptAgent:tasks", ctx);
+            if (await isDuplicate("pt-topic", topicId)) continue;
+            await markAsSeen("pt-topic", topicId);
+            await createTask("pt-topic", { url }, "ptAgent-tasks", ctx);
             created++;
             ctx.log.info(`New topic added - room: ${room}, topicId: ${topicId}`);
         }
@@ -31,12 +31,12 @@ async function processRoom(room: string, browser: Browser, ctx: Context): Promis
 export async function crawl(ctx: Context): Promise<void> {
     ctx.log.info("PT RSS crawler started");
     const start = Date.now();
-    const browser = await createBrowser();
+    const browser = await createBrowser(ctx);
 
     try {
         await Promise.all(ROOMS.map(room => processRoom(room, browser, ctx)));
         const duration = Date.now() - start;
-        const queueLength = await getQueueLength("ptAgent:tasks");
+        const queueLength = await getQueueLength("ptAgent-tasks");
         ctx.log.info(`Crawl completed - duration: ${duration}ms, queueLength: ${queueLength}`);
     } catch (err) {
         ctx.log.error(`Crawl failed: ${(err as Error).message}`);

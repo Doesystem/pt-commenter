@@ -49,8 +49,8 @@ Environment variables are configured via `ctx.env` through the platform dashboar
 - `comment_enable` - Enable/disable comment worker (default: true)
 
 **PT Configuration:**
-- `pantip_username` - PT account username (optional)
-- `pantip_password` - PT account password (optional)
+- `pt_username` - PT account username (optional)
+- `pt_password` - PT account password (optional)
 
 **Timing Configuration:**
 - `min_wait_minutes` - Minimum wait time between operations (default: 2)
