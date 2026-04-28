@@ -1,6 +1,6 @@
 {
     "name": "pt-commenter",
-    "version": "0.0.5",
+    "version": "0.0.7",
     "description": "A PT commenter agent built with @lifetimesoft/agent-sdk",
     "runtime": "node20",
     "main": "dist/index.js",
@@ -82,6 +82,14 @@
             "label": "Maximum Wait Time (minutes)",
             "description": "Maximum wait time between operations in minutes",
             "default": 6,
+            "required": false
+        },
+        {
+            "name": "headless",
+            "type": "boolean",
+            "label": "Headless Browser",
+            "description": "Run browser in headless mode (no visible window). Set to false for debugging.",
+            "default": true,
             "required": false
         }
     ],

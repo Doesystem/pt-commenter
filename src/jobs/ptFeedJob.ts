@@ -31,7 +31,7 @@ async function processRoom(room: string, browser: Browser, ctx: Context): Promis
 export async function crawl(ctx: Context): Promise<void> {
     ctx.log.info("PT RSS crawler started");
     const start = Date.now();
-    const browser = await createBrowser();
+    const browser = await createBrowser(ctx);
 
     try {
         await Promise.all(ROOMS.map(room => processRoom(room, browser, ctx)));

@@ -1,8 +1,13 @@
 import { chromium, Browser, BrowserContext, Page } from "playwright";
 import type { Context } from "@lifetimesoft/agent-sdk";
+import { getEnvBoolean } from "@lifetimesoft/agent-sdk";
 import { randomUserAgent } from "../utils/userAgents.js";
+import { existsSync, mkdirSync, unlinkSync } from "fs";
+import { join } from "path";
 
 const PT_COMMENT_MAX_LENGTH = 500;
+const COOKIE_DIR = join(process.cwd(), "data", "cookies");
+const COOKIE_FILE = join(COOKIE_DIR, "pt-session.json");
 
 export interface BrowserInstance {
     browser: Browser;
@@ -18,15 +23,23 @@ export interface TopicData {
 
 // ─── Browser ──────────────────────────────────────────────────────────────────
 
-export async function openBrowser(): Promise<BrowserInstance> {
-    const browser = await chromium.launch({
-        headless: true,
-        args: [
-            '--disable-blink-features=AutomationControlled',
-            '--disable-dev-shm-usage',
-            '--no-sandbox',
-        ],
-    });
+export async function openBrowser(ctx: Context, useSavedCookies = false): Promise<BrowserInstance> {
+    const headless = getEnvBoolean(ctx.env, 'headless', true);
+
+    const args = [
+        '--disable-blink-features=AutomationControlled',
+        '--disable-dev-shm-usage',
+        '--no-sandbox',
+        '--disable-gpu',
+        '--disable-software-rasterizer',
+        '--mute-audio',
+    ];
+    if (headless) args.push('--headless=new');
+
+    const browser = await chromium.launch({ headless, args });
+
+    // Load saved cookies if available
+    const hasCookies = useSavedCookies && existsSync(COOKIE_FILE);
 
     const context = await browser.newContext({
         userAgent: randomUserAgent(),
@@ -35,6 +48,7 @@ export async function openBrowser(): Promise<BrowserInstance> {
         viewport: { width: 1920, height: 1080 },
         geolocation: { longitude: 100.5018, latitude: 13.7563 }, // Bangkok
         colorScheme: 'light',
+        ...(hasCookies ? { storageState: COOKIE_FILE } : {}),
     });
 
     const page = await context.newPage();
@@ -45,6 +59,25 @@ export async function openBrowser(): Promise<BrowserInstance> {
     });
 
     return { browser, context, page };
+}
+
+// ─── Cookie Persistence ───────────────────────────────────────────────────────
+
+export async function saveCookies(context: BrowserContext): Promise<void> {
+    if (!existsSync(COOKIE_DIR)) {
+        mkdirSync(COOKIE_DIR, { recursive: true });
+    }
+    await context.storageState({ path: COOKIE_FILE });
+}
+
+export function hasSavedCookies(): boolean {
+    return existsSync(COOKIE_FILE);
+}
+
+export function clearSavedCookies(): void {
+    if (existsSync(COOKIE_FILE)) {
+        unlinkSync(COOKIE_FILE);
+    }
 }
 
 // ─── Login ────────────────────────────────────────────────────────────────────
@@ -85,7 +118,9 @@ export async function loginPt(
         throw new Error(`PT login failed: ${errorMsg.trim()}`);
     }
 
-    ctx.log.info('PT login successful');
+    // save cookies for future runs
+    await saveCookies(context);
+    ctx.log.info('PT login successful — session saved');
 }
 
 export async function ensureLogin(
@@ -99,13 +134,28 @@ export async function ensureLogin(
         throw new Error('PT credentials not configured (pt_username / pt_password)');
     }
 
-    const isLoggedIn = await page.locator('div.editor-input[contenteditable="true"]').count() > 0;
-    if (isLoggedIn) {
-        ctx.log.info('Already logged in');
-        return;
+    // Check login status by visiting pantip and checking for user menu
+    try {
+        await page.goto('https://pantip.com', { waitUntil: 'domcontentloaded', timeout: 30000 });
+        await page.waitForTimeout(2000);
+
+        // Check if logged in — if "เข้าสู่ระบบ" link is visible, not logged in
+        const loginBtn = await page.evaluate(() =>
+            Array.from(document.querySelectorAll('a.gtm-main-nav'))
+                .filter(el => el.textContent?.includes('เข้าสู่ระบบ')).length
+        );
+        
+        if (loginBtn === 0) {
+            ctx.log.info('Session still valid — skipping login');
+            return;
+        }
+    } catch {
+        // ignore navigation errors — proceed to login
     }
 
-    ctx.log.info('Not logged in — attempting login...');
+    // Session expired — clear old cookies before re-login
+    ctx.log.info('Session expired or not found — logging in...');
+    clearSavedCookies();
     await loginPt(page, context, username, password, ctx);
 }
 

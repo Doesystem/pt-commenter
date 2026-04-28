@@ -1,5 +1,5 @@
 import * as fileStorage from "../services/fileStorage.js";
-import { openBrowser, readPtTopic, postPtComment } from "../tools/ptBrowserTool.js";
+import { openBrowser, readPtTopic, postPtComment, hasSavedCookies } from "../tools/ptBrowserTool.js";
 import { generateComment } from "../agents/ptCommentAgent.js";
 import { getEnvString, getEnvNumber } from "@lifetimesoft/agent-sdk";
 import type { Context } from "@lifetimesoft/agent-sdk";
@@ -40,7 +40,7 @@ async function processPtTopicTask(task: PtTopicTask, ctx: Context): Promise<void
     const username = getEnvString(ctx.env, 'pt_username') ?? '';
     const password = getEnvString(ctx.env, 'pt_password') ?? '';
 
-    const { browser, context: browserContext, page } = await openBrowser();
+    const { browser, context: browserContext, page } = await openBrowser(ctx, hasSavedCookies());
 
     try {
         // Step 1: Read topic

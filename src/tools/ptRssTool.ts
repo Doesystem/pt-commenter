@@ -1,6 +1,7 @@
 import Parser from "rss-parser";
 import { chromium, Browser } from "playwright";
 import type { Context } from "@lifetimesoft/agent-sdk";
+import { getEnvBoolean } from "@lifetimesoft/agent-sdk";
 import { randomUserAgent } from "../utils/userAgents.js";
 
 const parser = new Parser({ timeout: 10000 });
@@ -44,6 +45,17 @@ export async function fetchRoomFeed(room: string, browser: Browser, ctx: Context
     }
 }
 
-export async function createBrowser(): Promise<Browser> {
-    return await chromium.launch({ headless: true });
+export async function createBrowser(ctx: Context): Promise<Browser> {
+    const headless = getEnvBoolean(ctx.env, 'headless', true);
+
+    const args = [
+        '--disable-dev-shm-usage',
+        '--no-sandbox',
+        '--disable-gpu',
+        '--disable-software-rasterizer',
+        '--mute-audio',
+    ];
+    if (headless) args.push('--headless=new');
+
+    return await chromium.launch({ headless, args });
 }
