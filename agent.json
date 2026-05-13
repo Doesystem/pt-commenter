@@ -1,6 +1,6 @@
 {
     "name": "pt-commenter",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "description": "A PT commenter agent built with @lifetimesoft/agent-sdk",
     "runtime": "node20",
     "main": "dist/index.js",
@@ -18,6 +18,13 @@
             "required": true,
             "features": [
                 "chat"
+            ]
+        },
+        "system": {
+            "required": true,
+            "features": [
+                "fs",
+                "browser-automation"
             ]
         }
     },
