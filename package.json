@@ -1,15 +1,13 @@
 {
     "name": "pt-commenter",
     "version": "0.0.9",
-    "type": "module",
     "description": "A PT commenter agent built with @lifetimesoft/agent-sdk",
     "main": "dist/index.js",
     "scripts": {
-        "build": "tsc",
-        "dev": "tsc --watch",
+        "build": "agent-build --platform=node --external:playwright",
+        "dev":   "agent-build --platform=node --external:playwright --watch",
         "test": "vitest run",
         "test:watch": "vitest",
-        "start": "node dist/index.js",
         "clean": "rm -rf dist data",
         "clean:data": "rm -rf data",
         "lint": "tsc --noEmit"
@@ -30,7 +28,7 @@
     },
     "homepage": "https://github.com/Doesystem/pt-commenter#readme",
     "dependencies": {
-        "@lifetimesoft/agent-sdk": "0.0.14",
+        "@lifetimesoft/agent-sdk": "0.0.22",
         "playwright": "^1.58.2",
         "rss-parser": "^3.13.0"
     },

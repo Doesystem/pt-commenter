@@ -17,7 +17,22 @@ A PT commenter agent built with [`@lifetimesoft/agent-sdk`](https://www.npmjs.co
 
 ---
 
-## 🚀 Getting Started
+## 🔨 Build
+
+This project uses `agent-build` from `@lifetimesoft/agent-sdk`.
+
+```bash
+npm run build   # bundles src/index.ts → dist/index.js
+npm run dev     # watch mode
+```
+
+Build flags used:
+- `--platform=node` — includes Node.js built-ins (`fs`, `path`, etc.)
+- `--external:playwright` — Playwright has native binaries that cannot be bundled; installed via `npm install` at run time
+
+> `dist/index.js` is included in the registry bundle when you run `lifectl ai agent push`. The Node.js host (`lifectl`) runs `npm install` after pull to get Playwright and other native deps.
+
+---
 
 ### Prerequisites
 
