@@ -2,35 +2,32 @@
 
 A PT commenter agent built with [`@lifetimesoft/agent-sdk`](https://www.npmjs.com/package/@lifetimesoft/agent-sdk) that automatically monitors PT forums and posts intelligent comments.
 
+> **Node.js only** — this agent requires `system.fs` and `system.browser-automation` capabilities. It runs on the Node.js host (`lifectl`) and is not compatible with the Chrome Extension host.
+
 ---
 
 ## 📦 Features
 
-* **RSS Feed Monitoring**: Automatically crawls PT forum RSS feeds for new topics
-* **Intelligent Commenting**: Processes topics and generates contextual comments
-* **File-based Storage**: Uses JSON files for task queuing and deduplication (no external dependencies)
-* **Configurable Scheduling**: Supports cron-based scheduling via platform dashboard
-* **TypeScript**: Full TypeScript support with strict mode
-* **Robust Error Handling**: Comprehensive logging and error recovery
+* **RSS Feed Monitoring** — automatically crawls PT forum RSS feeds for new topics
+* **Intelligent Commenting** — processes topics and generates contextual comments
+* **File-based Storage** — uses JSON files for task queuing and deduplication (no external dependencies)
+* **Configurable Scheduling** — supports cron-based scheduling via platform dashboard
+* **TypeScript** — full TypeScript support with strict mode
+* **Robust Error Handling** — comprehensive logging and error recovery
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 20+
 - PT account credentials
+- [`lifectl`](https://www.npmjs.com/package/@lifetimesoft/lifectl) CLI
 
-### Installation
+### Run via lifectl
 
 ```bash
-# Clone and install dependencies
-npm install
-
-# Build the project
-npm run build
-
-# Run via lifectl (environment variables configured via platform)
 lifectl ai agent pull pt-commenter
 lifectl ai agent run pt-commenter
 lifectl ai agent logs pt-commenter
@@ -41,22 +38,19 @@ lifectl ai agent stop pt-commenter
 
 ## ⚙️ Configuration
 
-Environment variables are configured via `ctx.env` through the platform dashboard or `agent.json`:
+Environment variables are configured via the platform dashboard or `agent.json`:
 
-**Agent Configuration:**
-- `mode` - Operation mode: normal, maintenance, or stats (default: normal)
-- `feed_job_enable` - Enable/disable RSS feed crawler (default: true)
-- `comment_enable` - Enable/disable comment worker (default: true)
-
-**PT Configuration:**
-- `pt_username` - PT account username (optional)
-- `pt_password` - PT account password (optional)
-
-**Timing Configuration:**
-- `min_wait_minutes` - Minimum wait time between operations (default: 2)
-- `max_wait_minutes` - Maximum wait time between operations (default: 6)
-
-All configuration is managed through the platform dashboard or `agent.json`.
+| Variable | Type | Default | Description |
+|---|---|---|---|
+| `mode` | string | `normal` | Operation mode: `normal`, `maintenance`, or `stats` |
+| `feed_job_enable` | boolean | `true` | Enable/disable RSS feed crawler |
+| `comment_enable` | boolean | `true` | Enable/disable comment worker |
+| `pt_username` | string | — | PT account username |
+| `pt_password` | password | — | PT account password |
+| `max_tasks_per_run` | number | `1` | Max tasks to process per scheduler run |
+| `min_wait_minutes` | number | `2` | Minimum wait time between operations |
+| `max_wait_minutes` | number | `6` | Maximum wait time between operations |
+| `headless` | boolean | `true` | Run browser in headless mode |
 
 ---
 
@@ -65,29 +59,53 @@ All configuration is managed through the platform dashboard or `agent.json`.
 The agent consists of two main components:
 
 ### 1. Feed Job (RSS Crawler)
-```ts
-// Runs every hour via cron
-startCronJob() // Crawls RSS feeds from multiple PT rooms
+
+Crawls PT RSS feeds on a cron schedule and enqueues new topics for processing.
+
+### 2. Comment Worker
+
+Dequeues topics, generates intelligent comments using AI, and posts them to PT.
+
+### Flow
+
+```text
+Feed Job (cron)
+    → crawl PT RSS feeds
+    → enqueue new topics to file-based queue
+
+Comment Worker (cron)
+    → dequeue topic
+    → generate comment via ctx.ai
+    → post comment via Playwright
+    → mark topic as seen (7-day TTL)
 ```
 
-### 2. Comment Worker  
-```ts
-// Processes tasks from Redis queue
-startWorker() // Generates and posts comments
+---
+
+## 🔧 Capabilities
+
+This agent declares the following capabilities in `agent.json`:
+
+```json
+{
+  "capabilities": {
+    "ai": {
+      "required": true,
+      "features": ["chat"]
+    },
+    "system": {
+      "required": true,
+      "features": ["fs", "browser-automation"]
+    }
+  }
+}
 ```
 
-### Architecture Flow:
-1. **Feed Job** crawls PT RSS feeds hourly
-2. New topics are added to file-based task queue
-3. **Comment Worker** processes tasks from queue
-4. Worker generates intelligent comments and posts them
-5. Deduplication prevents processing same topics twice (7-day TTL)
+Because `system.fs` and `system.browser-automation` are required, this agent is **only compatible with the Node.js host** (`lifectl`). Attempting to install it on the Chrome Extension host will return an error.
 
 ---
 
 ## 🕐 Scheduler
-
-Scheduler config is set from the platform dashboard:
 
 | type | behavior |
 |---|---|
@@ -103,9 +121,9 @@ Scheduler config is set from the platform dashboard:
 src/
   index.ts              ← main agent entry point
   jobs/
-    ptFeedJob.ts        ← RSS feed crawler (cron job)
+    ptFeedJob.ts        ← RSS feed crawler
   workers/
-    ptCommentWorker.ts  ← task processor (queue worker)
+    ptCommentWorker.ts  ← task processor
   services/
     fileStorage.ts      ← file-based storage (queue & deduplication)
     taskService.ts      ← task queue management
@@ -113,50 +131,35 @@ src/
     ptRssTool.ts        ← RSS parsing utilities
     maintenance.ts      ← maintenance tools
 dist/                   ← compiled output
-logs/                   ← application logs
-data/                   ← JSON data files (queue, seen topics)
+data/
   seen/                 ← deduplication records
   queue/                ← task queues
 ```
-
-See [DATA_STRUCTURE.md](./DATA_STRUCTURE.md) for detailed information about data storage.
 
 ---
 
 ## 🎯 Monitored PT Rooms
 
-- tech, sinthorn, wahkor, siam, blueplanet
-- siliconvalley, supachalasai, bangrak, library  
-- food, home, ratchada, mbk
-
----
-
-## 🧩 Related Tools
-
-* [`lifectl`](https://www.npmjs.com/package/@lifetimesoft/lifectl) – CLI for running and managing agents
-* [`@lifetimesoft/agent-sdk`](https://www.npmjs.com/package/@lifetimesoft/agent-sdk) – SDK for building portable AI agents
+tech, sinthorn, wahkor, siam, blueplanet, siliconvalley, supachalasai, bangrak, library, food, home, ratchada, mbk
 
 ---
 
 ## 🔧 Maintenance
 
-The agent includes built-in maintenance tools:
-
 ### Operation Modes
 
-1. **Normal Mode** (default) - Run feed job and comment worker
-2. **Maintenance Mode** - Clean up expired records and show stats
-3. **Stats Mode** - Display storage statistics only
+| Mode | Behavior |
+|---|---|
+| `normal` | Run feed job and comment worker |
+| `maintenance` | Clean up expired records and show stats |
+| `stats` | Display storage statistics only |
 
-```bash
-# Run maintenance
-lifectl ai agent run pt-commenter --env mode=maintenance
+---
 
-# View statistics
-lifectl ai agent run pt-commenter --env mode=stats
-```
+## 🧩 Related Projects
 
-See [MAINTENANCE.md](./MAINTENANCE.md) for detailed maintenance guide.
+* [`lifectl`](https://www.npmjs.com/package/@lifetimesoft/lifectl) — CLI for running and managing agents
+* [`@lifetimesoft/agent-sdk`](https://www.npmjs.com/package/@lifetimesoft/agent-sdk) — SDK for building portable AI agents
 
 ---
 
